@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LOCAMADA — Location de véhicules en Martinique. Citadines et utilitaires frigorifiques. Réservation en ligne, livraison aéroport.">
+  <meta property="og:title" content="LocaMada — Location de véhicules Martinique">
+  <meta property="og:description" content="Location de véhicules simplifiée en Martinique. Citadines dès 25€/j, utilitaires frigo disponibles.">
+  <meta property="og:type" content="website">
+  <title>LocaMada — Location de véhicules en Martinique</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================
+       RESET & TOKENS
+    ============================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #0a0e14;
+      color: #e8e4dc;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    img { display: block; max-width: 100%; }
+
+    :root {
+      --navy:      #1B3A6B;
+      --navy-d:    #0f2347;
+      --sky:       #4A90D9;
+      --sky-l:     #6BAEE8;
+      --gold:      #F5A623;
+      --gold-d:    #c8841a;
+      --gold-pale: rgba(245,166,35,0.12);
+      --cream:     #e8e4dc;
+      --dark:      #0a0e14;
+      --dark-2:    #111620;
+      --dark-3:    #181e2c;
+      --border:    rgba(255,255,255,0.07);
+      --border-g:  rgba(245,166,35,0.2);
+      --trans:     0.28s cubic-bezier(0.32,0.72,0,1);
+      --r-sm: 6px; --r-md: 12px; --r-lg: 18px; --r-xl: 24px; --r-full: 999px;
+    }
+
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* ============================================
+       GRAIN OVERLAY (fixed, no scroll cost)
+    ============================================ */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.028;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 160px;
+    }
+
+    /* ============================================
+       NAV
+    ============================================ */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 500;
+      padding: 14px 20px;
+      transition: padding var(--trans);
+    }
+
+    .nav.scrolled { padding: 8px 20px; }
+
+    .nav__inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(10,14,20,0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--r-full);
+      padding: 8px 8px 8px 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    }
+
+    .nav__logo {
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* Logo image avec suppression fond blanc via mix-blend-mode */
+    .nav__logo-img {
+      height: 38px;
+      width: auto;
+      mix-blend-mode: lighten;
+      filter: brightness(1.1) contrast(1.05);
+    }
+
+    .nav__links {
+      display: flex; align-items: center; gap: 2px;
+    }
+
+    .nav__links a {
+      font-size: 13px; font-weight: 500;
+      color: rgba(232,228,220,0.6);
+      padding: 7px 14px; border-radius: var(--r-full);
+      transition: all var(--trans);
+    }
+
+    .nav__links a:hover { color: var(--cream); background: rgba(255,255,255,0.06); }
+
+    .nav__cta {
+      background: var(--gold) !important;
+      color: var(--navy-d) !important;
+      font-weight: 700 !important;
+      padding: 9px 20px !important;
+      border-radius: var(--r-full) !important;
+      font-size: 13px !important;
+      transition: all var(--trans) !important;
+      box-shadow: 0 0 20px rgba(245,166,35,0.25);
+    }
+
+    .nav__cta:hover {
+      background: #ffb833 !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 24px rgba(245,166,35,0.4) !important;
+    }
+
+    /* Hamburger */
+    .nav__burger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 6px; background: none; border: none;
+    }
+
+    .nav__burger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--cream); border-radius: 2px;
+      transition: all var(--trans);
+    }
+
+    .nav__burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+    .nav__burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav__burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+    /* Mobile overlay */
+    .nav__overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(10,14,20,0.97);
+      backdrop-filter: blur(24px);
+      z-index: 490;
+      flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    }
+
+    .nav__overlay.open { display: flex; }
+
+    .nav__overlay a {
+      font-size: clamp(1.6rem, 7vw, 2.2rem);
+      font-weight: 800; color: var(--cream);
+      letter-spacing: -0.03em;
+      padding: 10px 32px;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.4s cubic-bezier(0.32,0.72,0,1),
+                  transform 0.4s cubic-bezier(0.32,0.72,0,1),
+                  color 0.2s;
+    }
+
+    .nav__overlay a:hover { color: var(--gold); }
+    .nav__overlay.open a { opacity: 1; transform: translateY(0); }
+    .nav__overlay.open a:nth-child(1) { transition-delay: 0.04s; }
+    .nav__overlay.open a:nth-child(2) { transition-delay: 0.09s; }
+    .nav__overlay.open a:nth-child(3) { transition-delay: 0.14s; }
+    .nav__overlay.open a:nth-child(4) { transition-delay: 0.19s; }
+    .nav__overlay.open a:nth-child(5) { transition-delay: 0.24s; }
+
+    .nav__overlay-logo {
+      position: absolute; top: 24px; left: 50%; transform: translateX(-50%);
+    }
+
+    .nav__overlay-logo img {
+      height: 48px; mix-blend-mode: lighten; filter: brightness(1.2);
+    }
+
+    /* ============================================
+       HERO — Photo clé sur cuir + ambiance tropicale
+    ============================================ */
+    .hero {
+      min-height: 100dvh;
+      position: relative;
+      display: flex; align-items: center;
+      overflow: hidden;
+    }
+
+    /* Photo de fond — clé de voiture sur cuir (reproduit l'ambiance locamada.com actuel) */
+    .hero__bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        linear-gradient(to bottom, rgba(10,14,20,0.55) 0%, rgba(10,14,20,0.3) 40%, rgba(10,14,20,0.75) 100%),
+        url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80&auto=format&fit=crop') center/cover no-repeat;
+    }
+
+    /* Vignette tropicale — lueur dorée subtile en bas à droite */
+    .hero__bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 85% 90%, rgba(245,166,35,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 15% 10%, rgba(74,144,217,0.08) 0%, transparent 50%);
+    }
+
+    /* Palmier SVG décoratif — touche tropicale discrète */
+    .hero__palm {
+      position: absolute; right: -2%; bottom: 0; z-index: 1;
+      width: min(340px, 45vw);
+      opacity: 0.07;
+      pointer-events: none;
+    }
+
+    .hero__content {
+      position: relative; z-index: 2;
+      width: 100%; padding: 120px 20px 80px;
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .hero__eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(245,166,35,0.1);
+      border: 1px solid rgba(245,166,35,0.25);
+      border-radius: var(--r-full);
+      padding: 5px 14px;
+      font-size: 11px; font-weight: 600;
+      color: var(--gold); letter-spacing: 0.14em;
+      text-transform: uppercase; margin-bottom: 22px;
+    }
+
+    .hero__eyebrow::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--gold); border-radius: 50%;
+      animation: blink 2.2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.4; transform:scale(0.65); }
+    }
+
+    .hero__title {
+      font-size: clamp(2.8rem, 8vw, 6rem);
+      font-weight: 900; line-height: 0.95;
+      letter-spacing: -0.05em;
+      color: #ffffff;
+      text-wrap: balance;
+      margin-bottom: 8px;
+    }
+
+    .hero__title em {
+      font-family: 'Playfair Display', serif;
+      font-style: italic; font-weight: 400;
+      color: var(--gold);
+      letter-spacing: -0.02em;
+    }
+
+    .hero__sub {
+      font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+      color: rgba(232,228,220,0.6);
+      line-height: 1.65; max-width: 480px;
+      margin-top: 20px; font-weight: 400;
+    }
+
+    .hero__actions {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      margin-top: 40px;
+    }
+
+    .btn-gold {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--gold); color: var(--navy-d);
+      font-weight: 700; font-size: 15px;
+      padding: 15px 26px; border-radius: var(--r-full);
+      border: none; cursor: pointer;
+      transition: all var(--trans);
+      box-shadow: 0 0 32px rgba(245,166,35,0.3);
+      letter-spacing: -0.01em;
+    }
+
+    .btn-gold:hover {
+      background: #ffb833;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 36px rgba(245,166,35,0.45);
+    }
+
+    .btn-gold:active { transform: scale(0.97); }
+
+    .btn-gold .ico {
+      width: 30px; height: 30px;
+      background: rgba(27,58,107,0.25); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      transition: transform var(--trans);
+    }
+
+    .btn-gold:hover .ico { transform: translate(2px,-1px) scale(1.1); }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.06);
+      color: var(--cream); font-weight: 600; font-size: 15px;
+      padding: 15px 26px; border-radius: var(--r-full);
+      border: 1px solid rgba(255,255,255,0.12);
+      cursor: pointer; transition: all var(--trans);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.25);
+      transform: translateY(-1px);
+    }
+
+    /* Stats */
+    .hero__stats {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg); overflow: hidden;
+      margin-top: 52px; max-width: 400px;
+    }
+
+    .hero__stat {
+      background: rgba(255,255,255,0.03);
+      padding: 18px 14px; text-align: center;
+    }
+
+    .hero__stat-num {
+      font-size: 1.8rem; font-weight: 800;
+      color: var(--gold); letter-spacing: -0.04em; line-height: 1;
+    }
+
+    .hero__stat-lbl {
+      font-size: 10px; color: rgba(232,228,220,0.4);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-top: 4px; font-weight: 500;
+    }
+
+    /* Scroll indicator */
+    .hero__scroll {
+      position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+      z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 6px;
+      color: rgba(232,228,220,0.3); font-size: 10px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+
+    .hero__scroll-line {
+      width: 1px; height: 36px;
+      background: linear-gradient(to bottom, rgba(245,166,35,0.5), transparent);
+      animation: scrollline 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollline {
+      0%,100% { opacity:0.3; transform:scaleY(1); }
+      50% { opacity:1; transform:scaleY(1.2); }
+    }
+
+    /* ============================================
+       SECTION BASE
+    ============================================ */
+    .section { padding: 88px 0; }
+    .section--alt { background: var(--dark-2); }
+    .section--mid { background: var(--dark-3); }
+
+    .sec-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 600;
+      color: var(--gold); letter-spacing: 0.14em;
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+
+    .sec-eyebrow::before {
+      content: ''; width: 18px; height: 1px;
+      background: var(--gold);
+    }
+
+    .sec-title {
+      font-size: clamp(1.9rem, 4.5vw, 3.2rem);
+      font-weight: 800; letter-spacing: -0.04em;
+      line-height: 1.05; color: var(--cream);
+    }
+
+    .sec-title em {
+      font-family: 'Playfair Display', serif;
+      font-style: italic; font-weight: 400;
+      color: var(--gold);
+    }
+
+    .sec-desc {
+      font-size: 1rem; color: rgba(232,228,220,0.5);
+      line-height: 1.7; max-width: 500px; margin-top: 12px;
+    }
+
+    .sec-header { margin-bottom: 52px; }
+
+    /* ============================================
+       VÉHICULES
+    ============================================ */
+    .vehicles { display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+    .vcard {
+      border-radius: var(--r-xl);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--dark-3);
+      transition: all var(--trans);
+      position: relative;
+    }
+
+    .vcard:hover {
+      border-color: rgba(245,166,35,0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(245,166,35,0.15);
+    }
+
+    /* Double bezel shell */
+    .vcard__shell {
+      padding: 5px;
+      background: rgba(255,255,255,0.03);
+      border-radius: calc(var(--r-xl) + 2px);
+      border: 1px solid var(--border);
+    }
+
+    .vcard__core {
+      background: var(--dark-3);
+      border-radius: calc(var(--r-xl) - 3px);
+      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .vcard__badge {
+      position: absolute; top: 16px; right: 16px; z-index: 2;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 4px 10px;
+      border-radius: var(--r-full);
+      background: rgba(245,166,35,0.15);
+      border: 1px solid rgba(245,166,35,0.3);
+      color: var(--gold);
+    }
+
+    .vcard__badge--util {
+      background: rgba(74,144,217,0.15);
+      border-color: rgba(74,144,217,0.3);
+      color: var(--sky-l);
+    }
+
+    .vcard__visual {
+      height: 180px; width: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 56px; position: relative; overflow: hidden;
+    }
+
+    .vcard__visual::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--dark-3) 0%, transparent 60%);
+    }
+
+    .vcard__body { padding: 18px 20px 20px; }
+
+    .vcard__meta {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .vcard__plate {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: rgba(232,228,220,0.3);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+
+    .vcard__dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .vcard__name {
+      font-size: 1.2rem; font-weight: 800;
+      color: var(--cream); letter-spacing: -0.03em;
+    }
+
+    .vcard__type {
+      font-size: 12px; color: rgba(232,228,220,0.4); margin-top: 2px;
+    }
+
+    .vcard__tags {
+      display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px;
+    }
+
+    .tag {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: var(--r-full);
+      font-size: 10px; color: rgba(232,228,220,0.5);
+      padding: 3px 9px; font-weight: 500;
+    }
+
+    .vcard__price {
+      display: flex; align-items: baseline; gap: 4px;
+      margin-top: 16px; padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .vcard__from { font-size: 10px; color: rgba(232,228,220,0.3); text-transform: uppercase; letter-spacing: 0.08em; }
+    .vcard__num { font-size: 2rem; font-weight: 800; color: var(--gold); letter-spacing: -0.04em; }
+    .vcard__unit { font-size: 12px; color: rgba(232,228,220,0.35); }
+
+    .vcard__btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; margin-top: 14px;
+      background: rgba(245,166,35,0.1);
+      border: 1px solid rgba(245,166,35,0.2);
+      color: var(--gold); font-weight: 600; font-size: 13px;
+      padding: 12px; border-radius: var(--r-md);
+      cursor: pointer; transition: all var(--trans);
+      text-decoration: none;
+    }
+
+    .vcard__btn:hover {
+      background: var(--gold); color: var(--navy-d);
+      box-shadow: 0 4px 20px rgba(245,166,35,0.35);
+      transform: translateY(-1px);
+    }
+
+    .vcard__btn:active { transform: scale(0.98); }
+
+    /* ============================================
+       TARIFS
+    ============================================ */
+    .tabs {
+      display: flex; gap: 6px; margin-bottom: 28px;
+      overflow-x: auto; padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab {
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--r-full);
+      font-size: 13px; font-weight: 600;
+      color: rgba(232,228,220,0.5);
+      padding: 8px 18px; cursor: pointer;
+      transition: all var(--trans);
+    }
+
+    .tab.on {
+      background: var(--gold); border-color: var(--gold);
+      color: var(--navy-d);
+    }
+
+    .panel { display: none; }
+    .panel.on { display: block; }
+
+    .ptable {
+      width: 100%; border-collapse: collapse;
+      border-radius: var(--r-lg); overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .ptable thead { background: rgba(245,166,35,0.08); }
+
+    .ptable th {
+      padding: 13px 16px; text-align: left;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(232,228,220,0.4);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ptable td {
+      padding: 14px 16px; font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: rgba(232,228,220,0.8);
+    }
+
+    .ptable tr:last-child td { border-bottom: none; }
+    .ptable tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+    .pcell { font-weight: 800; color: var(--gold); font-size: 17px; letter-spacing: -0.02em; }
+
+    .sbadge {
+      display: inline-block; padding: 3px 9px;
+      border-radius: var(--r-full); font-size: 10px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    }
+
+    .s-h { background: rgba(245,166,35,0.12); color: var(--gold); border: 1px solid rgba(245,166,35,0.2); }
+    .s-m { background: rgba(74,144,217,0.1); color: var(--sky-l); border: 1px solid rgba(74,144,217,0.2); }
+    .s-b { background: rgba(232,228,220,0.06); color: rgba(232,228,220,0.5); border: 1px solid var(--border); }
+
+    /* Livraison grid */
+    .delivery {
+      margin-top: 28px; border: 1px solid var(--border);
+      border-radius: var(--r-lg); overflow: hidden;
+    }
+
+    .delivery__hd {
+      background: rgba(245,166,35,0.08);
+      border-bottom: 1px solid var(--border);
+      padding: 13px 18px;
+      font-size: 10px; font-weight: 700;
+      color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;
+    }
+
+    .delivery__grid {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: 1px; background: var(--border);
+    }
+
+    .dcell {
+      background: var(--dark-3); padding: 14px 16px;
+    }
+
+    .dcell__lbl { font-size: 10px; color: rgba(232,228,220,0.3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .dcell__price { font-size: 1.3rem; font-weight: 800; color: var(--gold); letter-spacing: -0.04em; }
+    .dcell__price--free { color: #4caf75; }
+    .dcell__note { font-size: 11px; color: rgba(232,228,220,0.3); margin-top: 2px; }
+
+    /* ============================================
+       PROCESSUS
+    ============================================ */
+    .steps { display: grid; grid-template-columns: 1fr; gap: 2px; }
+
+    .step {
+      display: flex; gap: 18px; padding: 22px 0;
+      border-bottom: 1px solid var(--border); align-items: flex-start;
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step__num {
+      flex-shrink: 0; width: 42px; height: 42px;
+      background: var(--gold-pale);
+      border: 1px solid var(--border-g);
+      border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; font-weight: 700; color: var(--gold);
+    }
+
+    .step__title { font-size: 15px; font-weight: 700; color: var(--cream); letter-spacing: -0.02em; margin-bottom: 4px; }
+    .step__desc { font-size: 13px; color: rgba(232,228,220,0.45); line-height: 1.55; }
+
+    /* ============================================
+       CONDITIONS
+    ============================================ */
+    .conds { display: grid; grid-template-columns: 1fr; gap: 14px; }
+
+    .cond {
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 20px;
+      transition: all var(--trans);
+    }
+
+    .cond:hover { border-color: rgba(245,166,35,0.25); }
+
+    .cond__ico { font-size: 26px; margin-bottom: 10px; }
+    .cond__title { font-size: 13px; font-weight: 600; color: rgba(232,228,220,0.5); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .cond__val { font-size: 2rem; font-weight: 800; color: var(--gold); letter-spacing: -0.05em; line-height: 1; }
+    .cond__sub { font-size: 12px; color: rgba(232,228,220,0.35); line-height: 1.5; margin-top: 6px; }
+
+    /* ============================================
+       CTA RÉSERVATION
+    ============================================ */
+    .cta-section {
+      background: var(--dark);
+      position: relative; overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 60% 50%, rgba(245,166,35,0.07) 0%, transparent 65%),
+        radial-gradient(ellipse at 20% 80%, rgba(74,144,217,0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* Palmier déco dans le CTA */
+    .cta-section::after {
+      content: '🌴';
+      position: absolute; right: 5%; bottom: -10px;
+      font-size: clamp(80px,12vw,160px);
+      opacity: 0.04; pointer-events: none;
+      line-height: 1;
+    }
+
+    .cta-inner {
+      position: relative; z-index: 2;
+      text-align: center; max-width: 580px; margin: 0 auto;
+    }
+
+    .cta-title {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900; color: var(--cream);
+      letter-spacing: -0.05em; line-height: 1.0;
+      margin-bottom: 16px;
+    }
+
+    .cta-title em {
+      font-family: 'Playfair Display', serif;
+      font-style: italic; font-weight: 400; color: var(--gold);
+    }
+
+    .cta-desc {
+      font-size: 1rem; color: rgba(232,228,220,0.45);
+      line-height: 1.65; margin-bottom: 36px;
+    }
+
+    .cta-btns {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 12px;
+    }
+
+    .btn-wa {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #25D366; color: #fff;
+      font-weight: 700; font-size: 15px;
+      padding: 14px 28px; border-radius: var(--r-full);
+      transition: all var(--trans);
+      box-shadow: 0 0 28px rgba(37,211,102,0.25);
+    }
+
+    .btn-wa:hover {
+      background: #1fbe5c; transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(37,211,102,0.4);
+    }
+
+    .btn-wa:active { transform: scale(0.97); }
+
+    /* ============================================
+       FOOTER
+    ============================================ */
+    .footer {
+      background: #07090d;
+      color: rgba(232,228,220,0.35);
+      padding: 48px 0 28px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer__grid {
+      display: grid; grid-template-columns: 1fr;
+      gap: 36px; margin-bottom: 36px;
+    }
+
+    .footer__logo-wrap {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+
+    .footer__logo-img {
+      height: 40px; mix-blend-mode: lighten;
+      filter: brightness(0.7) contrast(0.9);
+    }
+
+    .footer__desc { font-size: 13px; line-height: 1.6; max-width: 260px; }
+
+    .footer__col-title {
+      font-size: 10px; font-weight: 700; color: rgba(232,228,220,0.6);
+      letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 14px;
+    }
+
+    .footer__links { display: flex; flex-direction: column; gap: 9px; }
+    .footer__links a { font-size: 13px; transition: color var(--trans); }
+    .footer__links a:hover { color: var(--cream); }
+
+    .footer__contact { display: flex; flex-direction: column; gap: 9px; }
+    .footer__ci { display: flex; gap: 8px; font-size: 13px; align-items: flex-start; }
+    .footer__ci-ico { color: var(--gold); flex-shrink: 0; margin-top: 1px; }
+
+    .footer__hr { border: none; border-top: 1px solid var(--border); margin-bottom: 20px; }
+
+    .footer__bot {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+
+    .footer__copy { font-size: 11px; }
+    .footer__legal-links { font-size: 11px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+    .footer__legal-links a { transition: color var(--trans); }
+    .footer__legal-links a:hover { color: var(--cream); }
+
+    /* ============================================
+       WHATSAPP FLOTTANT
+    ============================================ */
+    .wafloat {
+      position: fixed; bottom: 24px; right: 20px; z-index: 400;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    }
+
+    .wafloat__tip {
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg) var(--r-lg) 2px var(--r-lg);
+      padding: 10px 14px; font-size: 13px; font-weight: 500;
+      color: var(--cream); white-space: nowrap;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      opacity: 0; transform: translateY(6px) scale(0.96);
+      transition: all var(--trans); pointer-events: none;
+    }
+
+    .wafloat:hover .wafloat__tip { opacity: 1; transform: translateY(0) scale(1); }
+
+    .wafloat__btn {
+      position: relative;
+      width: 56px; height: 56px;
+      background: #25D366; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 24px rgba(37,211,102,0.35);
+      transition: all var(--trans); text-decoration: none;
+    }
+
+    .wafloat__btn:hover { transform: scale(1.08); box-shadow: 0 8px 36px rgba(37,211,102,0.5); }
+    .wafloat__btn:active { transform: scale(0.95); }
+
+    .wafloat__btn::after {
+      content: ''; position: absolute;
+      width: 56px; height: 56px; border-radius: 50%;
+      border: 2px solid rgba(37,211,102,0.45);
+      animation: wapulse 2.8s ease-out infinite;
+    }
+
+    @keyframes wapulse {
+      0% { transform:scale(1); opacity:.7; }
+      100% { transform:scale(1.65); opacity:0; }
+    }
+
+    .wafloat__btn svg { width: 27px; height: 27px; fill: #fff; }
+
+    /* ============================================
+       SCROLL REVEAL
+    ============================================ */
+    .r {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.7s cubic-bezier(0.32,0.72,0,1),
+                  transform 0.7s cubic-bezier(0.32,0.72,0,1);
+    }
+
+    .r.in { opacity: 1; transform: translateY(0); }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (min-width: 600px) {
+      .delivery__grid { grid-template-columns: repeat(4,1fr); }
+      .conds { grid-template-columns: repeat(2,1fr); }
+      .cta-btns { flex-direction: row; justify-content: center; }
+      .footer__bot { flex-direction: row; justify-content: space-between; align-items: center; }
+    }
+
+    @media (min-width: 768px) {
+      .vehicles { grid-template-columns: repeat(2,1fr); }
+      .steps { grid-template-columns: repeat(2,1fr); gap: 0 32px; }
+      .conds { grid-template-columns: repeat(4,1fr); }
+      .footer__grid { grid-template-columns: 2fr 1fr 1fr; }
+      .nav__links { display: flex; }
+      .nav__burger { display: none; }
+      .hero__content { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 48px; padding-top: 140px; padding-bottom: 100px; }
+      .hero__right { display: flex; flex-direction: column; align-items: flex-end; }
+      .hero__stats { margin-top: 0; max-width: none; }
+    }
+
+    @media (min-width: 1024px) {
+      .vehicles { grid-template-columns: repeat(4,1fr); }
+    }
+
+    @media (max-width: 767px) {
+      .nav__links { display: none; }
+      .nav__burger { display: flex; }
+      .hero__right { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======== NAV ======== -->
+<nav class="nav" id="nav">
+  <div class="nav__inner">
+    <a href="#" class="nav__logo">
+      <img src="/mnt/user-data/uploads/1775627751905_image.png"
+           alt="LocaMada logo"
+           class="nav__logo-img"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+      <!-- Fallback si image non dispo en ligne -->
+      <span style="display:none; align-items:center; gap:8px;">
+        <span style="width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:var(--navy-d);">LM</span>
+        <span style="font-size:17px;font-weight:800;color:var(--cream);letter-spacing:-0.03em;">LocaMada</span>
+      </span>
+    </a>
+    <div class="nav__links">
+      <a href="#vehicules">Véhicules</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="#processus">Comment ça marche</a>
+      <a href="#reservation" class="nav__cta">Réserver</a>
+    </div>
+    <button class="nav__burger" id="burger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile overlay -->
+<div class="nav__overlay" id="overlay">
+  <div class="nav__overlay-logo">
+    <img src="/mnt/user-data/uploads/1775627751905_image.png" alt="LocaMada" class="nav__overlay-logo-img" style="height:44px;mix-blend-mode:lighten;filter:brightness(1.1)">
+  </div>
+  <a href="#vehicules" onclick="closeNav()">Véhicules</a>
+  <a href="#tarifs" onclick="closeNav()">Tarifs</a>
+  <a href="#processus" onclick="closeNav()">Comment ça marche</a>
+  <a href="#conditions" onclick="closeNav()">Conditions</a>
+  <a href="#reservation" onclick="closeNav()" style="color:var(--gold)">→ Réserver</a>
+</div>
+
+<!-- ======== HERO ======== -->
+<section class="hero" id="accueil">
+  <div class="hero__bg"></div>
+
+  <!-- Palmier SVG décoratif -->
+  <svg class="hero__palm" viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M100 400 L105 200 C105 200 160 120 200 80 C160 100 130 150 110 180 L120 100 C120 100 170 40 190 0 C155 30 125 80 108 130 L115 40 C115 40 145 10 150 0 C128 15 108 50 103 90 L100 0 L97 90 C92 50 72 15 50 0 C55 10 85 40 85 40 L92 130 C75 80 45 30 10 0 C30 40 80 100 80 100 L90 180 C70 150 40 100 0 80 C40 120 95 200 95 200 Z" fill="white"/>
+  </svg>
+
+  <div class="hero__content container">
+    <div class="hero__left">
+      <div class="hero__eyebrow">Martinique · Location véhicules</div>
+      <h1 class="hero__title">
+        Roulez<br>libre en<br><em>Martinique.</em>
+      </h1>
+      <p class="hero__sub">
+        Citadines et utilitaires frigorifiques disponibles à la journée. Contrat automatique, livraison possible, réservation en 3 minutes.
+      </p>
+      <div class="hero__actions">
+        <a href="https://tally.so/r/aQENYB" target="_blank" rel="noopener" class="btn-gold">
+          Réserver maintenant
+          <span class="ico">→</span>
+        </a>
+        <a href="#vehicules" class="btn-ghost">Voir la flotte</a>
+      </div>
+      <div class="hero__stats">
+        <div class="hero__stat">
+          <div class="hero__stat-num">4</div>
+          <div class="hero__stat-lbl">Véhicules</div>
+        </div>
+        <div class="hero__stat">
+          <div class="hero__stat-num">25€</div>
+          <div class="hero__stat-lbl">Dès / jour</div>
+        </div>
+        <div class="hero__stat">
+          <div class="hero__stat-num">3min</div>
+          <div class="hero__stat-lbl">Réservation</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero__right">
+      <!-- Logo mis en valeur côté droit sur desktop -->
+      <img src="/mnt/user-data/uploads/1775627751905_image.png"
+           alt="LocaMada"
+           style="width:min(320px,80vw); mix-blend-mode:lighten; filter:brightness(1.15) drop-shadow(0 0 40px rgba(245,166,35,0.2));">
+    </div>
+  </div>
+
+  <div class="hero__scroll" aria-hidden="true">
+    <div class="hero__scroll-line"></div>
+    <span>Défiler</span>
+  </div>
+</section>
+
+<!-- ======== VÉHICULES ======== -->
+<section class="section section--alt" id="vehicules">
+  <div class="container">
+    <div class="sec-header r">
+      <div class="sec-eyebrow">Notre flotte</div>
+      <h2 class="sec-title">4 véhicules <em>disponibles</em></h2>
+      <p class="sec-desc">Citadines économiques pour vos déplacements, utilitaires frigorifiques pour vos activités professionnelles.</p>
+    </div>
+    <div class="vehicles">
+
+      <article class="vcard r">
+        <div class="vcard__shell"><div class="vcard__core">
+          <div class="vcard__badge">Disponible</div>
+          <div class="vcard__visual" style="background:linear-gradient(135deg,#0f2347,#1B3A6B)">🚗</div>
+          <div class="vcard__body">
+            <div class="vcard__meta">
+              <span class="vcard__plate">HJ-811-LP</span>
+              <span class="vcard__dot" style="background:#4A90D9"></span>
+            </div>
+            <div class="vcard__name">Skoda Fabia</div>
+            <div class="vcard__type">Citadine · Fabia 1 🔵</div>
+            <div class="vcard__tags">
+              <span class="tag">5 places</span>
+              <span class="tag">Climatisation</span>
+              <span class="tag">Économique</span>
+            </div>
+            <div class="vcard__price">
+              <span class="vcard__from">Dès</span>
+              <span class="vcard__num">25€</span>
+              <span class="vcard__unit">/ jour</span>
+            </div>
+            <a href="https://tally.so/r/aQENYB" target="_blank" rel="noopener" class="vcard__btn">Réserver ce véhicule →</a>
+          </div>
+        </div></div>
+      </article>
+
+      <article class="vcard r">
+        <div class="vcard__shell"><div class="vcard__core">
+          <div class="vcard__badge">Disponible</div>
+          <div class="vcard__visual" style="background:linear-gradient(135deg,#0d3318,#1a6e30)">🚗</div>
+          <div class="vcard__body">
+            <div class="vcard__meta">
+              <span class="vcard__plate">HJ-750-LP</span>
+              <span class="vcard__dot" style="background:#4caf50"></span>
+            </div>
+            <div class="vcard__name">Skoda Fabia</div>
+            <div class="vcard__type">Citadine · Fabia 2 🟢</div>
+            <div class="vcard__tags">
+              <span class="tag">5 places</span>
+              <span class="tag">Climatisation</span>
+              <span class="tag">Économique</span>
+            </div>
+            <div class="vcard__price">
+              <span class="vcard__from">Dès</span>
+              <span class="vcard__num">25€</span>
+              <span class="vcard__unit">/ jour</span>
+            </div>
+            <a href="https://tally.so/r/aQENYB" target="_blank" rel="noopener" class="vcard__btn">Réserver ce véhicule →</a>
+          </div>
+        </div></div>
+      </article>
+
+      <article class="vcard r">
+        <div class="vcard__shell"><div class="vcard__core">
+          <div class="vcard__badge vcard__badge--util">Utilitaire</div>
+          <div class="vcard__visual" style="background:linear-gradient(135deg,#3d1f00,#8B4513)">🚐</div>
+          <div class="vcard__body">
+            <div class="vcard__meta">
+              <span class="vcard__plate">FZ-948-VD</span>
+              <span class="vcard__dot" style="background:#F5A623"></span>
+            </div>
+            <div class="vcard__name">Fiat Doblò Frigo</div>
+            <div class="vcard__type">Utilitaire frigorifique · 5m³ 🟠</div>
+            <div class="vcard__tags">
+              <span class="tag">Frigo 5m³</span>
+              <span class="tag">Temp. contrôlée</span>
+              <span class="tag">Professionnel</span>
+            </div>
+            <div class="vcard__price">
+              <span class="vcard__from">Dès</span>
+              <span class="vcard__num">75€</span>
+              <span class="vcard__unit">/ jour</span>
+            </div>
+            <a href="https://tally.so/r/aQENYB" target="_blank" rel="noopener" class="vcard__btn">Réserver ce véhicule →</a>
+          </div>
+        </div></div>
+      </article>
+
+      <article class="vcard r">
+        <div class="vcard__shell"><div class="vcard__core">
+          <div class="vcard__badge vcard__badge--util">Utilitaire</div>
+          <div class="vcard__visual" style="background:linear-gradient(135deg,#3d0000,#7B0000)">🚛</div>
+          <div class="vcard__body">
+            <div class="vcard__meta">
+              <span class="vcard__plate">FY-103-PV</span>
+              <span class="vcard__dot" style="background:#D32F2F"></span>
+            </div>
+            <div class="vcard__name">Renault Trafic Frigo</div>
+            <div class="vcard__type">Utilitaire frigorifique · 7m³ 🔴</div>
+            <div class="vcard__tags">
+              <span class="tag">Frigo 7m³</span>
+              <span class="tag">Grand volume</span>
+              <span class="tag">Professionnel</span>
+            </div>
+            <div class="vcard__price">
+              <span class="vcard__from">Dès</span>
+              <span class="vcard__num">90€</span>
+              <span class="vcard__unit">/ jour</span>
+            </div>
+            <a href="https://tally.so/r/aQENYB" target="_blank" rel="noopener" class="vcard__btn">Réserver ce véhicule →</a>
+          </div>
+        </div></div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ======== TARIFS ======== -->
+<section class="section section--mid" id="tarifs">
+  <div class="container">
+    <div class="sec-header r">
+      <div class="sec-eyebrow">Tarification</div>
+      <h2 class="sec-title">Tarifs <em>transparents</em></h2>
+      <p class="sec-desc">Prix à la journée selon le véhicule et la saison. Dégressif dès 4 jours pour les utilitaires.</p>
+    </div>
+
+    <div class="tabs r">
+      <button class="tab on" onclick="setTab('cit')">Citadines</button>
+      <button class="tab" onclick="setTab('dob')">Doblò Frigo 5m³</button>
+      <button class="tab" onclick="setTab('tra')">Trafic Frigo 7m³</button>
+    </div>
+
+    <div class="panel on r" id="p-cit">
+      <table class="ptable">
+        <thead><tr><th>Saison</th><th>Mois concernés</th><th>Prix / jour</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sbadge s-h">Haute</span></td><td>Déc, Jan, Fév, Mar, Juil, Août</td><td class="pcell">36 €</td></tr>
+          <tr><td><span class="sbadge s-m">Moyenne</span></td><td>Avr, Mai</td><td class="pcell">31 €</td></tr>
+          <tr><td><span class="sbadge s-b">Basse</span></td><td>Juin, Sep, Oct, Nov</td><td class="pcell">25 €</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel r" id="p-dob">
+      <table class="ptable">
+        <thead><tr><th>Durée</th><th>Nombre de jours</th><th>Prix / jour</th></tr></thead>
+        <tbody>
+          <tr><td>Courte durée</td><td>1 à 3 jours</td><td class="pcell">90 €</td></tr>
+          <tr><td>Durée intermédiaire</td><td>4 à 6 jours</td><td class="pcell">85 €</td></tr>
+          <tr><td>Longue durée</td><td>7 jours et +</td><td class="pcell">75 €</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel r" id="p-tra">
+      <table class="ptable">
+        <thead><tr><th>Durée</th><th>Nombre de jours</th><th>Prix / jour</th></tr></thead>
+        <tbody>
+          <tr><td>Courte durée</td><td>1 à 3 jours</td><td class="pcell">120 €</td></tr>
+          <tr><td>Durée intermédiaire</td><td>4 à 6 jours</td><td class="pcell">110 €</td></tr>
+          <tr><td>Longue durée</td><td>7 jours et +</td><td class="pcell">90 €</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="delivery r">
+      <div class="delivery__hd">Frais de livraison & restitution</div>
+      <div class="delivery__grid">
+        <div class="dcell">
+          <div class="dcell__lbl">Le Robert → Le Robert</div>
+          <div class="dcell__price dcell__price--free">0 €</div>
+          <div class="dcell__note">Inclus</div>
+        </div>
+        <div class="dcell">
+          <div class="dcell__lbl">Aéroport — 1 trajet</div>
+          <div class="dcell__price">+10 €</div>
+          <div class="dcell__note">Par trajet</div>
+        </div>
+        <div class="dcell">
+          <div class="dcell__lbl">Autres lieux — 1 trajet</div>
+          <div class="dcell__price">+20 €</div>
+          <div class="dcell__note">Par trajet</div>
+        </div>
+        <div class="dcell">
+          <div class="dcell__lbl">Aéroport — Aller/Retour</div>
+          <div class="dcell__price">+20 €</div>
+          <div class="dcell__note">Départ + retour</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== PROCESSUS ======== -->
+<section class="section section--alt" id="processus">
+  <div class="container">
+    <div class="sec-header r">
+      <div class="sec-eyebrow">Processus</div>
+      <h2 class="sec-title">Réservez en <em>3 étapes</em></h2>
+      <p class="sec-desc">Simple, rapide, sécurisé. Votre contrat est généré automatiquement dès la soumission.</p>
+    </div>
+    <div class="steps">
+      <div class="step r">
+        <div class="step__num">01</div>
+        <div>
+          <div class="step__title">Remplissez le formulaire</div>
+          <div class="step__desc">Vos dates, vos coordonnées, le véhicule souhaité. 3 minutes depuis votre téléphone.</div>
+        </div>
+      </div>
+      <div class="step r">
+        <div class="step__num">02</div>
+        <div>
+          <div class="step__title">Recevez votre contrat PDF</div>
+          <div class="step__desc">Généré automatiquement et envoyé par email. Vous signez via WhatsApp ou Adobe Acrobat.</div>
+        </div>
+      </div>
+      <div class="step r">
+        <div class="step__num">03</div>
+        <div>
+          <div class="step__title">Payez l'acompte (30%)</div>
+          <div class="step__desc">Minimum 50€. La caution est bloquée via Swikly — aucun débit si restitution conforme.</div>
+        </div>
+      </div>
+      <div class="step r">
+        <div class="step__num">04</div>
+        <div>
+          <div class="step__title">Récupérez les clés</div>
+          <div class="step__desc">Au Robert ou livraison selon accord. Solde réglé à la remise. Bonne route 🌴</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== CONDITIONS ======== -->
+<section class="section section--mid" id="conditions">
+  <div class="container">
+    <div class="sec-header r">
+      <div class="sec-eyebrow">Conditions</div>
+      <h2 class="sec-title">Ce qu'il faut <em>savoir</em></h2>
+      <p class="sec-desc">Conditions d'accès, cautions et modalités de paiement en toute transparence.</p>
+    </div>
+    <div class="conds">
+      <div class="cond r">
+        <div class="cond__ico">🪪</div>
+        <div class="cond__title">Âge minimum</div>
+        <div class="cond__val">23 ans</div>
+        <div class="cond__sub">Permis valide depuis au moins 3 ans. Permis B obligatoire.</div>
+      </div>
+      <div class="cond r">
+        <div class="cond__ico">🔐</div>
+        <div class="cond__title">Caution citadines</div>
+        <div class="cond__val">950 €</div>
+        <div class="cond__sub">Fonds bloqués via Swikly. Libérés si restitution conforme.</div>
+      </div>
+      <div class="cond r">
+        <div class="cond__ico">🛡️</div>
+        <div class="cond__title">Caution utilitaires</div>
+        <div class="cond__val">1 450 €</div>
+        <div class="cond__sub">Fonds bloqués via Swikly. Libérés sous 24–48h après retour.</div>
+      </div>
+      <div class="cond r">
+        <div class="cond__ico">💳</div>
+        <div class="cond__title">Acompte</div>
+        <div class="cond__val">30%</div>
+        <div class="cond__sub">Minimum 50€ à la réservation. Solde avant remise des clés.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== CTA RÉSERVATION ======== -->
+<section class="section cta-section" id="reservation">
+  <div class="container">
+    <div class="cta-inner r">
+      <h2 class="cta-title">Prêt à rouler<br>en <em>Martinique ?</em></h2>
+      <p class="cta-desc">Remplissez le formulaire en ligne. Votre contrat est prêt en quelques minutes, directement dans votre boîte mail.</p>
+      <div class="cta-btns">
+        <a href="https://tally.so/r/aQENYB" target="_blank" rel="noopener" class="btn-gold" style="font-size:16px;padding:16px 30px;">
+          Réserver maintenant
+          <span class="ico">→</span>
+        </a>
+        <a href="https://wa.me/596696379223" target="_blank" rel="noopener" class="btn-wa">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== FOOTER ======== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo-wrap">
+          <img src="/mnt/user-data/uploads/1775627751905_image.png" alt="LocaMada" class="footer__logo-img">
+        </div>
+        <p class="footer__desc">Location de véhicules simplifiée en Martinique. Citadines et utilitaires frigorifiques disponibles à la journée.</p>
+      </div>
+      <div>
+        <div class="footer__col-title">Navigation</div>
+        <nav class="footer__links">
+          <a href="#vehicules">Nos véhicules</a>
+          <a href="#tarifs">Tarifs</a>
+          <a href="#processus">Comment ça marche</a>
+          <a href="#conditions">Conditions</a>
+          <a href="https://tally.so/r/aQENYB" target="_blank" rel="noopener">Réserver</a>
+        </nav>
+      </div>
+      <div>
+        <div class="footer__col-title">Contact</div>
+        <div class="footer__contact">
+          <div class="footer__ci"><span class="footer__ci-ico">✉</span><span>contact@locamada.com</span></div>
+          <div class="footer__ci"><span class="footer__ci-ico">📍</span><span>Le Robert, Martinique (972)</span></div>
+          <div class="footer__ci"><span class="footer__ci-ico">📞</span><span>+596 696 379 223</span></div>
+          <div class="footer__ci"><span class="footer__ci-ico">🏛</span><span>SASU · RCS Fort-de-France 941 973 810</span></div>
+        </div>
+      </div>
+    </div>
+    <hr class="footer__hr">
+    <div class="footer__bot">
+      <p class="footer__copy">© 2026 LocaMada. Tous droits réservés.</p>
+      <div class="footer__legal-links">
+        <a href="#">Mentions légales</a>
+        <a href="#">CGV</a>
+        <a href="#">Confidentialité</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ======== WHATSAPP FLOTTANT ======== -->
+<div class="wafloat">
+  <div class="wafloat__tip">Une question ? On répond vite 👋</div>
+  <a href="https://wa.me/596696379223" target="_blank" rel="noopener" class="wafloat__btn" aria-label="Contacter LocaMada sur WhatsApp">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+</div>
+
+<!-- ======== SCRIPTS ======== -->
+<script>
+  // Nav hamburger
+  const burger = document.getElementById('burger');
+  const overlay = document.getElementById('overlay');
+  burger.addEventListener('click', () => {
+    const open = overlay.classList.toggle('open');
+    burger.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  function closeNav() {
+    overlay.classList.remove('open');
+    burger.classList.remove('open');
+    burger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeNav(); });
+
+  // Nav scroll compact
+  const navEl = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    navEl.classList.toggle('scrolled', window.scrollY > 50);
+  }, { passive: true });
+
+  // Tabs tarifs
+  function setTab(id) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+    const idx = ['cit','dob','tra'].indexOf(id);
+    document.querySelectorAll('.tab')[idx].classList.add('on');
+    document.getElementById('p-' + id).classList.add('on');
+  }
+
+  // Scroll reveal
+  const ro = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const siblings = [...entry.target.parentElement.querySelectorAll('.r')];
+      const i = siblings.indexOf(entry.target);
+      entry.target.style.transitionDelay = (i * 70) + 'ms';
+      entry.target.classList.add('in');
+      ro.unobserve(entry.target);
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+  document.querySelectorAll('.r').forEach(el => ro.observe(el));
+
+  // Smooth anchors
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) { e.preventDefault(); window.scrollTo({ top: t.offsetTop - 72, behavior: 'smooth' }); }
+    });
+  });
+</script>
+</body>
+</html>
